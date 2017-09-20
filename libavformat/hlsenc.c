@@ -105,6 +105,7 @@ typedef struct HLSContext {
     unsigned number;
     int64_t sequence;
     int64_t start_sequence;
+    int64_t sync_start_pts;
     uint32_t start_sequence_source_type;  // enum StartSequenceSourceType
     AVOutputFormat *oformat;
     AVOutputFormat *vtt_oformat;
@@ -544,6 +545,7 @@ static int hls_mux_init(AVFormatContext *s)
     oc->filename[0]        = '\0';
     oc->oformat            = hls->oformat;
     oc->interrupt_callback = s->interrupt_callback;
+    oc->hls_callback = s->hls_callback;
     oc->max_delay          = s->max_delay;
     oc->opaque             = s->opaque;
     oc->io_open            = s->io_open;
@@ -1331,6 +1333,7 @@ static int hls_write_header(AVFormatContext *s)
     const char *pattern = "%d.ts";
     const char *pattern_localtime_fmt = get_default_pattern_localtime_fmt(s);
     const char *vtt_pattern = "%d.vtt";
+    hls->sync_start_pts = -1;
     AVDictionary *options = NULL;
     int basename_size;
     int vtt_basename_size;
@@ -1614,6 +1617,10 @@ static int hls_write_packet(AVFormatContext *s, AVPacket *pkt)
         hls->end_pts   = pkt->pts;
     }
 
+    if(hls->sync_start_pts == -1) {
+        hls->sync_start_pts = pkt->pts;
+    }
+
     if (hls->has_video) {
         can_split = st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO &&
                     ((pkt->flags & AV_PKT_FLAG_KEY) || (hls->flags & HLS_SPLIT_BY_TIME));
@@ -1670,8 +1677,14 @@ static int hls_write_packet(AVFormatContext *s, AVPacket *pkt)
             hls->number--;
         }
 
-        if (!hls->fmp4_init_mode || byterange_mode)
+        if (!hls->fmp4_init_mode || byterange_mode) {
             ret = hls_append_segment(s, hls, hls->duration, hls->start_pos, hls->size);
+            if(s->hls_callback && s->hls_callback.callback) {
+                s->hls_callback.callback(s->hls_callback.opaque, hls->start_pos, pkt->pts, hls->last_segment->duration, old_filename);                
+            }
+            hls->sync_start_pts = -1;
+        }
+
 
         hls->start_pos = new_start_pos;
         if (ret < 0) {

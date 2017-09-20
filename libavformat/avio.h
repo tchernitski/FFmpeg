@@ -61,6 +61,15 @@ typedef struct AVIOInterruptCB {
 } AVIOInterruptCB;
 
 /**
+* Callback for getting information about persisted hls(ts) files
+*/
+
+typedef struct AVIOHlsCB {
+    int (*callback)(void*, int64_t start_pts, int64_t end_pts, double duration, char* filename);
+    void *opaque;
+} AVIOHlsCB;
+
+/**
  * Directory entry types.
  */
 enum AVIODirEntryType {

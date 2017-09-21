@@ -545,7 +545,6 @@ static int hls_mux_init(AVFormatContext *s)
     oc->filename[0]        = '\0';
     oc->oformat            = hls->oformat;
     oc->interrupt_callback = s->interrupt_callback;
-    oc->hls_callback = s->hls_callback;
     oc->max_delay          = s->max_delay;
     oc->opaque             = s->opaque;
     oc->io_open            = s->io_open;
@@ -1679,8 +1678,8 @@ static int hls_write_packet(AVFormatContext *s, AVPacket *pkt)
 
         if (!hls->fmp4_init_mode || byterange_mode) {
             ret = hls_append_segment(s, hls, hls->duration, hls->start_pos, hls->size);
-            if(s->hls_callback && s->hls_callback.callback) {
-                s->hls_callback.callback(s->hls_callback.opaque, hls->start_pos, pkt->pts, hls->last_segment->duration, old_filename);                
+            if(s->hls_callback.callback) {
+               s->hls_callback.callback(s->hls_callback.opaque, hls->sync_start_pts, pkt->pts, hls->last_segment->duration, old_filename);                
             }
             hls->sync_start_pts = -1;
         }

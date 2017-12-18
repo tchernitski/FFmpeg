@@ -1049,6 +1049,13 @@ static int hls_window(AVFormatContext *s, int last)
 
     hls->discontinuity_set = 0;
     write_m3u8_head_block(hls, out, version, target_duration, sequence);
+
+
+    if( hls->subtitle_filename ) {
+        avio_printf(out, "#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"subs\",NAME=\"Subtitles\",DEFAULT=YES,AUTOSELECT=YES,FORCED=NO,LANGUAGE=\"en\",URI=\"%s\"\n", hls->subtitle_filename);
+    }
+
+
     if (hls->pl_type == PLAYLIST_TYPE_EVENT) {
         avio_printf(out, "#EXT-X-PLAYLIST-TYPE:EVENT\n");
     } else if (hls->pl_type == PLAYLIST_TYPE_VOD) {

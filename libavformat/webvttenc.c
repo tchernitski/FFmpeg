@@ -55,8 +55,14 @@ static int webvtt_write_header(AVFormatContext *ctx)
     }
 
     avpriv_set_pts_info(s, 64, 1, 1000);
+    
+    int64_t dts = s->cur_dts + 40;
 
     avio_printf(pb, "WEBVTT\n");
+    avio_printf(pb, "X-TIMESTAMP-MAP=LOCAL:");    
+    webvtt_write_time(pb, dts);
+    avio_printf(pb, ",MPEGTS:%"PRId64"\n", (dts*90)%8589934592);
+
     avio_flush(pb);
 
     return 0;

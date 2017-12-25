@@ -156,7 +156,7 @@ typedef struct HLSContext {
     char *format_options_str;
     char *vtt_format_options_str;
     char *subtitle_filename;
-    char *vtt_m3u8_path;
+    // char *vtt_m3u8_path;
     
     AVDictionary *format_options;
 
@@ -1053,9 +1053,9 @@ static int hls_window(AVFormatContext *s, int last)
     write_m3u8_head_block(hls, out, version, target_duration, sequence);
 
 
-    if( hls->vtt_m3u8_path ) {
-        avio_printf(out, "#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"subs\",NAME=\"Subtitles\",DEFAULT=YES,AUTOSELECT=YES,FORCED=NO,LANGUAGE=\"en\",URI=\"%s\"\n", hls->vtt_m3u8_path);
-    }
+    // if( hls->vtt_m3u8_path ) {
+    //     avio_printf(out, "#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"meta\",NAME=\"Meta\",DEFAULT=YES,AUTOSELECT=YES,FORCED=YES,LANGUAGE=\"en\",URI=\"%s\"\n", hls->vtt_m3u8_path);
+    // }
 
 
     if (hls->pl_type == PLAYLIST_TYPE_EVENT) {
@@ -1814,7 +1814,7 @@ static const AVOption options[] = {
     {"hls_enc_key_url",    "url to access the key to decrypt the segments", OFFSET(key_url),      AV_OPT_TYPE_STRING, {.str = NULL},            0,       0,         E},
     {"hls_enc_iv",    "hex-coded 16 byte initialization vector", OFFSET(iv),      AV_OPT_TYPE_STRING, .flags = E},
     {"hls_subtitle_path",     "set path of hls subtitles", OFFSET(subtitle_filename), AV_OPT_TYPE_STRING, {.str = NULL},  0, 0,    E},
-    {"hls_vtt_m3u8_path",     "set path of vtt m3u8 file", OFFSET(vtt_m3u8_path), AV_OPT_TYPE_STRING, {.str = NULL},  0, 0,    E},
+    // {"hls_vtt_m3u8_path",     "set path of vtt m3u8 file", OFFSET(vtt_m3u8_path), AV_OPT_TYPE_STRING, {.str = NULL},  0, 0,    E},
     {"hls_segment_type",     "set hls segment files type", OFFSET(segment_type), AV_OPT_TYPE_INT, {.i64 = SEGMENT_TYPE_MPEGTS }, 0, SEGMENT_TYPE_FMP4, E, "segment_type"},
     {"mpegts",   "make segment file to mpegts files in m3u8", 0, AV_OPT_TYPE_CONST, {.i64 = SEGMENT_TYPE_MPEGTS }, 0, UINT_MAX,   E, "segment_type"},
     {"fmp4",   "make segment file to fragment mp4 files in m3u8", 0, AV_OPT_TYPE_CONST, {.i64 = SEGMENT_TYPE_FMP4 }, 0, UINT_MAX,   E, "segment_type"},

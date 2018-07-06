@@ -65,7 +65,7 @@ typedef struct AVIOInterruptCB {
 */
 
 typedef struct AVIOHlsCB {
-    int (*callback)(void*, int64_t start_pts, int64_t end_pts, double duration, char* filename);
+    int (*callback)(void*, double start_pts, double end_pts, double duration, char* filename);
     void *opaque;
 } AVIOHlsCB;
 
